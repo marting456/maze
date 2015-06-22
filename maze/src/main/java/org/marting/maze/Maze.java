@@ -3,6 +3,8 @@
  */
 package org.marting.maze;
 
+import org.apache.log4j.Logger;
+
 /**
  * @author martin
  *
@@ -21,51 +23,8 @@ public class Maze {
 	private int maxY = -1;
 	private int maxArea = 0;
 	
-	public static void main(String[] args) {
-
-		// 8, 2
-		int[][] maze1 = new int[][] { 
-				{ 1, 0, 0, 1, 1, 0 },
-				{ 1, 0, 0, 0, 1, 1 }, 
-				{ 0, 0, 1, 1, 0, 1 }, 
-				{ 1, 0, 1, 0, 0, 0 } };
-		// 10
-		int[][] maze2 = new int[][] { 
-				{ 1, 0, 0, 1, 1, 0 },
-				{ 1, 0, 0, 0, 1, 1 }, 
-				{ 0, 0, 1, 0, 0, 1 }, 
-				{ 1, 0, 1, 0, 0, 0 } };
-		// 6, 2, 2
-		int[][] maze3 = new int[][] { 
-				{ 1, 0, 0, 1, 1, 0 },
-				{ 1, 0, 1, 0, 1, 1 }, 
-				{ 0, 0, 1, 1, 0, 1 }, 
-				{ 1, 0, 1, 0, 0, 0 } };
-		// 0
-		int[][] maze4 = new int[][] { 
-				{ 1, 0, 1, 1, 1, 0 },
-				{ 1, 0, 0, 0, 1, 1 }, 
-				{ 0, 0, 1, 0, 0, 1 }, 
-				{ 1, 0, 1, 0, 0, 0 } };
-		// 6, 2
-		int[][] maze5 = new int[][] { 
-				{ 1, 0, 1, 1, 1, 0 },
-				{ 1, 0, 0, 0, 1, 1 }, 
-				{ 0, 0, 0, 0, 0, 1 }, 
-				{ 1, 0, 1, 0, 0, 0 } };
-		
-		Maze myMaze = new Maze(maze1); 
-		myMaze.solveMaze();
-//		myMaze = new Maze(maze2);
-//		myMaze.solveMaze();
-//		myMaze = new Maze(maze3);
-//		myMaze.solveMaze();
-//		myMaze = new Maze(maze4);
-//		myMaze.solveMaze();
-		myMaze = new Maze(maze5);
-		myMaze.solveMaze();
-		
-	}
+	private static Logger LOGGER = Logger.getLogger("mainLogger");
+	private static Logger PRINTER = Logger.getLogger("simpleLogger");
 	
 	public Maze(int[][] maze) {
 		this.maze = maze;
@@ -85,33 +44,34 @@ public class Maze {
 	 * 7. count the area. 
 	 */
 	public void solveMaze() {
-		System.out.println("== initial maze ==");
+		LOGGER.debug("== initial maze ==");
 		printMaze();
 		setNonEnclosingEdges();
-		System.out.println("== orphane edges removed ==");
+		LOGGER.debug("== orphane edges removed ==");
 		printMaze();
 		expandFromSides();
-		System.out.println("== outer lines marked ==");
+		LOGGER.debug("== outer lines marked ==");
 		printMaze();
 		findSquares();
-		System.out.println(">> number of squares: " + getNumberOfSquares());
+		LOGGER.debug(">> number of squares: " + getNumberOfSquares());
 		findNonTrivialEnclosures();
-		System.out.println(">> number of nonTrivial enclosures: " + getNumberOfNonTrivialEnclosures());
-		System.out.println(">> total number of enclosures: " + ((int) getNumberOfNonTrivialEnclosures() + getNumberOfSquares()));
+		printMaze();
+		LOGGER.debug(">> number of nonTrivial enclosures: " + getNumberOfNonTrivialEnclosures());
+		LOGGER.debug(">> total number of enclosures: " + ((int) getNumberOfNonTrivialEnclosures() + getNumberOfSquares()));
 		findMaxEnclosure();
 		printMaze();
-		System.out.println(">> Max enclosure inner coordinates: " + getMaxX() + "," + getMaxY());
+		LOGGER.debug(">> Max enclosure inner coordinates: " + getMaxX() + "," + getMaxY());
 		if (getNumberOfNonTrivialEnclosures() > 0) {
 			markMaxEnclousure();
 			printMaze();
-			System.out.println("== max enclosure interrior marked with 4s ==");
+			LOGGER.debug("== max enclosure interrior marked with 4s ==");
 			assignValuesToEdges();
 			printMaze();
-			System.out.println("== edges marked with 2s ==");
+			LOGGER.debug("== edges marked with 2s ==");
 			calculateMaxArea();
-			System.out.println("Max area: " + getMaxArea());
+			LOGGER.debug("Max area: " + getMaxArea());
 		} else if(getNumberOfSquares() > 0) {
-			System.out.println("Max area: 2");
+			LOGGER.debug("Max area: 2");
 		}
 	}
 	
@@ -158,6 +118,10 @@ public class Maze {
 					if (getW(i,j) == 1 || getW(i,j) == 0) {
 						maze[i][j-1] = 2;
 					}
+					if (getE(i,j) == 1 || getE(i,j) == 0) {
+						maze[i][j+1] = 2;
+					}
+					
 				}
 		}		
 	}
@@ -190,6 +154,7 @@ public class Maze {
 		}		
 	}
 	
+	// TODO: fix logic
 	private void findNonTrivialEnclosures() {
 		numberOfNonTrivialEnclosures = 0;
 		for (int i = 0; i < maze.length; i++) {
@@ -197,17 +162,20 @@ public class Maze {
 				if (maze[i][j] == 2) {
 					expandNWSE(i,j,4,2);
 					numberOfNonTrivialEnclosures++;
+					LOGGER.debug("enclouser found at [" + i + "," + j + "]");
 				}
 		}	
 	}	
 	
 	private void findSquares() {
 		numberOfSquares = 0;
-		for (int i=0; i < height - 2; i++) {
-			for (int j=0; j < width - 2; j++) {
+		for (int i=0; i < height - 1; i++) {
+			for (int j=0; j < width - 1; j++) {
 				if (maze[i][j] == 0 && maze[i][j+1] == 1 && 
-						maze[i+1][j] == 1 && maze[i+1][j+1] == 0)
+						maze[i+1][j] == 1 && maze[i+1][j+1] == 0) {
 					numberOfSquares++;
+					LOGGER.debug("square found at [" + i + "," + j + "]");
+				}
 			}
 		}
 	}
@@ -276,8 +244,8 @@ public class Maze {
 	private void printMaze() {
 		for (int i = 0; i < maze.length; i++) {
 			for (int j = 0; j < maze[i].length; j++)
-				System.out.print(maze[i][j] + " ");
-			System.out.println();
+				PRINTER.debug(maze[i][j] + " ");
+			PRINTER.debug("\n");
 		}
 	}
 
