@@ -79,10 +79,6 @@ public class Maze {
 		return maxArea;
 	}
 
-	public void setMaxArea(int maxArea) {
-		this.maxArea = maxArea;
-	}
-
 	private void calculateMaxArea() {
 		for (int i = 0; i < maze.length; i++) {
 			for (int j = 0; j < maze[i].length; j++) {
@@ -317,39 +313,15 @@ public class Maze {
 		return numberOfNonTrivialEnclosures;
 	}
 
-	public void setNumberOfNonTrivialEnclosures(int numberOfNonTrivialEnclosures) {
-		this.numberOfNonTrivialEnclosures = numberOfNonTrivialEnclosures;
-	}
-
 	public int getNumberOfSquares() {
 		return numberOfSquares;
-	}
-
-	public void setNumberOfSquares(int numberOfSquares) {
-		this.numberOfSquares = numberOfSquares;
-	}
-
-	public int getMaxEnclosure() {
-		return maxEnclosure;
-	}
-
-	public void setMaxEnclosure(int maxEnclosure) {
-		this.maxEnclosure = maxEnclosure;
 	}
 
 	public int getMaxX() {
 		return maxX;
 	}
 
-	public void setMaxX(int maxX) {
-		this.maxX = maxX;
-	}
-
 	public int getMaxY() {
 		return maxY;
-	}
-
-	public void setMaxY(int maxY) {
-		this.maxY = maxY;
 	}
 }
