@@ -7,6 +7,8 @@ Given data describing a maze with diagonal walls
 </ol>
 The maze pictured below has 2 enclosed areas, the larger of which has an area of 8.
 
+![alt tag](https://raw.github.com/username/projectname/branch/path/to/img.png)
+
 Data Type:
 <pre>
 #  Type 0     Type 1
